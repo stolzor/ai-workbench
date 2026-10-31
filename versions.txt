@@ -1,6 +1,7 @@
 OpenCode 2.2.5
 oh-my-opencode-slim 3.0.6
 Node.js 26.12.0
-npm/npx 12.2.1
+npm/npx 11.20.0 (bundled with mise Node.js)
 Git 2.56.0
+mise 2026.9.18 or newer
 Validated on: Arch Linux x86_64

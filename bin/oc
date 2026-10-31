@@ -1,6 +1,10 @@
 #!/bin/sh
 set -eu
 
+root=$(CDPATH= cd -P -- "$(dirname "$0")/.." && pwd)
+node_version=$(mise config get --file "$root/mise.toml" tools.node)
+opencode_version=$(mise config get --file "$root/mise.toml" tools.opencode)
+
 export OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true
 unset OPENCODE_ENABLE_EXA
 
@@ -9,4 +13,4 @@ if [ "${1-}" = "--web" ]; then
   shift
 fi
 
-exec opencode "$@"
+exec mise exec "node@$node_version" "opencode@$opencode_version" -- opencode "$@"

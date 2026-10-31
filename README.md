@@ -3,6 +3,13 @@
 Переносимая конфигурация OpenCode V2 и `oh-my-opencode-slim` без секретов,
 сессий, истории, логов и кэшей.
 
+Node.js и OpenCode закреплены в `mise.toml`. Установите их один раз:
+
+```sh
+cd ~/ai-workbench
+mise install
+```
+
 ## Текущая конфигурация
 
 - Slim закреплён на версии `3.0.6`; `autoUpdate` отключён.
@@ -25,7 +32,8 @@
 ~/ai-workbench/bin/oc
 ```
 
-Wrapper не меняет текущий каталог и передаёт все аргументы OpenCode.
+Wrapper читает версии из `mise.toml`, запускает OpenCode через `mise exec`,
+не меняет текущий каталог и передаёт все аргументы OpenCode.
 Web search по умолчанию выключен. Для явного включения Exa на один запуск:
 
 ```sh
@@ -43,7 +51,7 @@ OpenCode и выполните `/connect`, выберите OpenAI и офици
 ```sh
 opencode plugin list
 opencode models
-npx oh-my-opencode-slim@3.0.6 doctor
+mise exec -- npx oh-my-opencode-slim@3.0.6 doctor
 ```
 
 `ping all agents` обращается к моделям и расходует квоту; запускайте его только
@@ -51,9 +59,16 @@ npx oh-my-opencode-slim@3.0.6 doctor
 
 ## Перенос на вторую машину
 
-1. Установите версии из `versions.txt` или совместимые актуальные версии
-   OpenCode V2 и Node.js/npm. Bun не обязателен.
-2. Клонируйте приватный репозиторий как `~/ai-workbench`.
+1. Установите mise версии из `versions.txt` или новее. Bun не обязателен.
+2. Клонируйте приватный репозиторий как `~/ai-workbench`, затем установите
+   закреплённые инструменты:
+
+   ```sh
+   cd ~/ai-workbench
+   mise trust
+   mise install
+   ```
+
 3. Сохраните существующие пользовательские конфиги с датой:
 
    ```sh
@@ -91,8 +106,9 @@ npx oh-my-opencode-slim@3.0.6 doctor
 
 1. Проверьте release notes и схему новой версии.
 2. Создайте датированные копии двух конфигов.
-3. Замените точную версию одновременно в `config/opencode.jsonc`, `$schema`
-   Slim и `versions.txt`.
+3. Для OpenCode/Node измените версии в `mise.toml`, выполните `mise install`
+   и обновите `versions.txt`. Для Slim замените точную версию одновременно в
+   `config/opencode.jsonc`, `$schema` Slim и `versions.txt`.
 4. Выполните reload и doctor, затем минимальный smoke test.
 5. Проверьте, что ссылки не заменены обычными файлами:
 

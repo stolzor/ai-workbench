@@ -1,0 +1,5 @@
+min_version = "2026.9.18"
+
+[tools]
+node = "26.12.0"
+opencode = "2.2.5"
