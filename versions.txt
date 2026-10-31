@@ -1,0 +1,6 @@
+OpenCode 2.2.5
+oh-my-opencode-slim 3.0.6
+Node.js 26.12.0
+npm/npx 12.2.1
+Git 2.56.0
+Validated on: Arch Linux x86_64

@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+
+export OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true
+unset OPENCODE_ENABLE_EXA
+
+if [ "${1-}" = "--web" ]; then
+  export OPENCODE_ENABLE_EXA=1
+  shift
+fi
+
+exec opencode "$@"

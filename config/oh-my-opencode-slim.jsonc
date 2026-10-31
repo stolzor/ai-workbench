@@ -1,0 +1,63 @@
+{
+  "$schema": "https://unpkg.com/oh-my-opencode-slim@3.0.6/oh-my-opencode-slim.schema.json",
+  "preset": "openai",
+  "presets": {
+    "openai": {
+      "orchestrator": {
+        "model": "openai/gpt-6.1-sol",
+        "variant": "medium",
+        "skills": ["*"]
+      },
+      "oracle": {
+        "model": "openai/gpt-6.1-sol",
+        "variant": "high",
+        "skills": ["simplify"]
+      },
+      "explorer": {
+        "model": "openai/gpt-6-luna",
+        "variant": "low",
+        "skills": []
+      },
+      "designer": {
+        "model": "openai/gpt-6-luna",
+        "variant": "medium",
+        "skills": []
+      },
+      "fixer": {
+        "model": "openai/gpt-6.1-sol",
+        "variant": "low",
+        "skills": []
+      }
+    }
+  },
+  "autoUpdate": false,
+  "backgroundJobs": {
+    "wallClockTimeoutMs": 1800000,
+    "concurrency": {
+      "defaultConcurrency": 2
+    }
+  },
+  "fallback": {
+    "enabled": false
+  },
+  "disabled_hooks": [
+    "council-inject"
+  ],
+  "disabled_tools": [
+    "marketplace_inspect",
+    "marketplace_manage"
+  ],
+  "disabled_commands": [
+    "interview",
+    "implement"
+  ],
+  "interview": {
+    "autoOpenBrowser": false
+  },
+  "multiplexer": {
+    "type": "none"
+  },
+  "companion": {
+    "enabled": false
+  }
+}
