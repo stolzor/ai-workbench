@@ -16,6 +16,7 @@ sessions/
 logs/
 *.log
 node_modules/
+__pycache__/
 
 # Backups and OS/editor files
 *.bak

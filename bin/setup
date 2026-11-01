@@ -1,0 +1,80 @@
+#!/bin/sh
+# Connect this checkout without evaluating any user shell configuration.
+set -eu
+: "${HOME:?HOME must be nonempty}"
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
+config_dir=${XDG_CONFIG_HOME:-$HOME/.config}/opencode
+mkdir -p "$config_dir"
+stamp=$(date +%Y%m%d%H%M%S)
+
+backup() {
+    original=$1
+    destination=$original.bak.$stamp
+    suffix=0
+    while [ -e "$destination" ] || [ -L "$destination" ]; do
+        suffix=$((suffix + 1))
+        destination=$original.bak.$stamp.$suffix
+    done
+    mv -- "$original" "$destination"
+    printf 'Preserved %s as %s\n' "$original" "$destination"
+}
+
+for name in opencode oh-my-opencode-slim; do
+    source_file=$root/config/$name.jsonc
+    target=$config_dir/$name.jsonc
+    # OpenCode accepts either extension; preserve the alternate before linking.
+    alternate=$config_dir/$name.json
+    if [ -e "$alternate" ] || [ -L "$alternate" ]; then
+        backup "$alternate"
+    fi
+    if [ -L "$target" ] && [ "$target" -ef "$source_file" ]; then
+        continue
+    fi
+    if [ -e "$target" ] || [ -L "$target" ]; then
+        backup "$target"
+    fi
+    ln -s "$source_file" "$target"
+done
+
+# Single-quote paths for shell syntax, including embedded apostrophes.
+quote() {
+    printf "'"
+    printf '%s' "$1" | sed "s/'/'\\\\''/g"
+    printf "'"
+}
+
+shell_name=${SHELL:-}
+shell_name=${shell_name##*/}
+rc=
+case "$shell_name" in
+    zsh) rc=${ZDOTDIR:-$HOME}/.zshrc ;;
+    bash)
+        if [ "$(uname -s)" = Darwin ]; then
+            for profile in .bash_profile .bash_login .profile; do
+                if [ -f "$HOME/$profile" ]; then
+                    rc=$HOME/$profile
+                    break
+                fi
+            done
+            rc=${rc:-$HOME/.bash_profile}
+        else
+            rc=$HOME/.bashrc
+        fi
+        ;;
+esac
+if [ -n "$rc" ]; then
+    mkdir -p "$(dirname -- "$rc")"
+    # Match quoted or unquoted mise executables, without sourcing the file.
+    if ! { [ -f "$rc" ] && grep -Ev '^[[:space:]]*#' "$rc" | grep -Eq "mise['\"]?[[:space:]]+activate[[:space:]]+['\"]?$shell_name(['\"]|[[:space:]]|[)]|$)"; }; then
+        mise_path=$(command -v mise || :)
+        case "$mise_path" in
+            /*) executable=$(quote "$mise_path") ;;
+            *) executable=mise ;;
+        esac
+        printf '\n# Activate mise for this checkout and other mise projects.\neval "$(%s activate %s)"\n' "$executable" "$shell_name" >> "$rc"
+    fi
+    printf 'To activate this shell now, run: . %s\n' "$(quote "$rc")"
+else
+    printf 'Shell %s is not configured automatically. Add the appropriate `mise activate` command to your shell startup file.\n' "${SHELL:-unknown}"
+fi
+printf 'Launch the repository wrapper: %s\n' "$(quote "$root/bin/oc")"
