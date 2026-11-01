@@ -10,6 +10,34 @@ cd ~/ai-workbench
 mise install
 ```
 
+`mise install` устанавливает только инструменты: настройки OpenCode и плагин
+с оркестратором подключаются отдельно по инструкции «Перенос на вторую машину».
+
+### macOS: активация mise
+
+Если после установки терминал пишет `command not found: opencode`, проверьте
+из каталога репозитория:
+
+```sh
+mise exec -- opencode --version
+```
+
+Если версия выводится, добавьте в `~/.zshrc` следующую строку (если её ещё нет):
+
+```sh
+eval "$(mise activate zsh)"
+```
+
+Примените настройки shell и проверьте команду:
+
+```sh
+source ~/.zshrc
+opencode --version
+```
+
+Это инструкция для zsh — стандартного shell macOS. Для другого shell нужна
+соответствующая команда активации mise.
+
 ## Текущая конфигурация
 
 - Slim закреплён на версии `3.0.6`; `autoUpdate` отключён.
@@ -73,8 +101,8 @@ mise exec -- npx oh-my-opencode-slim@3.0.6 doctor
 
    ```sh
    stamp=$(date +%Y%m%d-%H%M%S)
-   cp -a ~/.config/opencode/opencode.jsonc ~/.config/opencode/opencode.jsonc.bak.$stamp
-   cp -a ~/.config/opencode/oh-my-opencode-slim.jsonc ~/.config/opencode/oh-my-opencode-slim.jsonc.bak.$stamp
+   mv ~/.config/opencode/opencode.jsonc ~/.config/opencode/opencode.jsonc.bak.$stamp
+   mv ~/.config/opencode/oh-my-opencode-slim.jsonc ~/.config/opencode/oh-my-opencode-slim.jsonc.bak.$stamp
    ```
 
    Выполняйте только для реально существующих файлов. Если одновременно есть
@@ -83,15 +111,35 @@ mise exec -- npx oh-my-opencode-slim@3.0.6 doctor
 
    ```sh
    mkdir -p ~/.config/opencode
-   ln -s ../../ai-workbench/config/opencode.jsonc ~/.config/opencode/opencode.jsonc
-   ln -s ../../ai-workbench/config/oh-my-opencode-slim.jsonc ~/.config/opencode/oh-my-opencode-slim.jsonc
+   ln -s ~/ai-workbench/config/opencode.jsonc ~/.config/opencode/opencode.jsonc
+   ln -s ~/ai-workbench/config/oh-my-opencode-slim.jsonc ~/.config/opencode/oh-my-opencode-slim.jsonc
    ```
+
+   Если репозиторий находится в другом месте, замените `~/ai-workbench`
+   фактическим путём. При `File exists` не используйте `ln -sf`: сначала
+   проверьте и сохраните существующий файл или ссылку из шага 3.
 
 5. Убедитесь, что pinned-плагин `oh-my-opencode-slim@3.0.6` загрузился.
    Один перенос JSON не переносит установленный пакет или кэш.
 6. Авторизуйте OpenAI заново через `/connect` на второй машине.
 7. Выполните `opencode plugin list`, `opencode models` и doctor.
 8. Запускайте `~/ai-workbench/bin/oc` из нужного проекта.
+
+### OpenCode запускается, но оркестратора нет
+
+Оркестратор поставляется плагином `oh-my-opencode-slim`, а не самим OpenCode.
+Одна установка через mise не подключает конфиги из `config/` автоматически.
+Выполните шаги 3–5 выше, запустите `~/ai-workbench/bin/oc` и выполните `/reload`
+в OpenCode. Проверьте загрузку плагина и ссылки:
+
+```sh
+opencode plugin list
+ls -l ~/.config/opencode/
+```
+
+В списке должен присутствовать `oh-my-opencode-slim@3.0.6`, а две ссылки должны
+указывать на существующие файлы этого репозитория. Если проблема осталась,
+сохраните вывод этих команд для диагностики.
 
 ## OpenRouter как независимый резерв
 
